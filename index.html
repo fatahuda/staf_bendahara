@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Aplikasi Pencatatan Kas & Keuangan</title>
+  <style>
+    :root {
+      --bg: #f1f5f9;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --pink-bg: #fff1f2;
+      --pink-border: #fecdd3;
+      --pink-text: #be123c;
+      --pink-btn: #e11d48;
+      --blue-bg: #eff6ff;
+      --blue-border: #bfdbfe;
+      --blue-text: #1d4ed8;
+      --blue-btn: #2563eb;
+      --dark-btn: #0f172a;
+      --shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.45;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: 14px 12px 36px;
+    }
+
+    .app-shell {
+      width: 100%;
+      max-width: 460px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* Login View */
+    .login-wrapper {
+      min-height: calc(100vh - 50px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .login-card {
+      width: 100%;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 28px 22px;
+      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.07);
+    }
+
+    .login-badge {
+      display: inline-block;
+      background: var(--blue-bg);
+      color: var(--blue-text);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 5px 12px;
+      border-radius: 999px;
+      margin-bottom: 12px;
+    }
+
+    .login-title {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    .login-sub {
+      font-size: 13.5px;
+      color: var(--muted);
+      margin-bottom: 22px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 13px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 13px;
+      font-size: 15px;
+      color: var(--text);
+      background: #f8fafc;
+      outline: none;
+      transition: border-color 0.15s, background 0.15s;
+    }
+
+    .form-input:focus {
+      border-color: var(--blue-btn);
+      background: #ffffff;
+    }
+
+    .btn-primary-full {
+      width: 100%;
+      border: none;
+      border-radius: 14px;
+      padding: 14px;
+      font-size: 15px;
+      font-weight: 700;
+      background: var(--dark-btn);
+      color: #ffffff;
+      cursor: pointer;
+      margin-top: 4px;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+
+    .btn-primary-full:active {
+      transform: scale(0.99);
+    }
+
+    /* Top Title Card */
+    .header-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 20px 18px;
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+
+    .account-big-title {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--text);
+      letter-spacing: -0.3px;
+      word-break: break-word;
+    }
+
+    /* Summary Grid */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .summary-box {
+      border-radius: 18px;
+      padding: 16px 14px;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-width: 0;
+    }
+
+    .summary-box.in {
+      background: var(--pink-bg);
+      border: 1px solid var(--pink-border);
+    }
+
+    .summary-box.out {
+      background: var(--blue-bg);
+      border: 1px solid var(--blue-border);
+    }
+
+    .summary-label {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .summary-box.in .summary-label {
+      color: var(--pink-text);
+    }
+
+    .summary-box.out .summary-label {
+      color: var(--blue-text);
+    }
+
+    .summary-amount {
+      font-size: 20px;
+      font-weight: 800;
+      word-break: break-word;
+    }
+
+    .summary-box.in .summary-amount {
+      color: var(--pink-text);
+    }
+
+    .summary-box.out .summary-amount {
+      color: var(--blue-text);
+    }
+
+    /* Action Buttons Grid */
+    .action-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .action-btn {
+      border: none;
+      border-radius: 16px;
+      padding: 14px 12px;
+      font-size: 14px;
+      font-weight: 700;
+      color: #ffffff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: var(--shadow);
+      transition: transform 0.1s, opacity 0.15s;
+    }
+
+    .action-btn:active {
+      transform: scale(0.98);
+    }
+
+    .action-btn.in {
+      background: var(--pink-btn);
+    }
+
+    .action-btn.out {
+      background: var(--blue-btn);
+    }
+
+    /* Sync & Menu Card */
+    .sync-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 12px 14px;
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      position: relative;
+    }
+
+    .balance-pill {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .balance-pill span:first-child {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    .balance-pill span:last-child {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .sync-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .btn-sync {
+      background: var(--blue-btn);
+      color: #ffffff;
+      border: none;
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-sync:active {
+      opacity: 0.9;
+    }
+
+    .btn-menu-dark {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      border: none;
+      background: var(--dark-btn);
+      color: #ffffff;
+      font-size: 18px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Dropdown Menu */
+    .dropdown-menu {
+      position: absolute;
+      right: 14px;
+      top: 60px;
+      width: 225px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: 0 12px 28px rgba(15, 23, 42, 0.14);
+      padding: 6px;
+      z-index: 40;
+    }
+
+    .dropdown-header {
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 4px;
+    }
+
+    .dropdown-header p:first-child {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .dropdown-header p:last-child {
+      font-size: 11.5px;
+      color: var(--muted);
+      word-break: break-all;
+    }
+
+    .dropdown-item {
+      width: 100%;
+      text-align: left;
+      background: transparent;
+      border: none;
+      padding: 10px 12px;
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--text);
+      border-radius: 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .dropdown-item:hover {
+      background: #f1f5f9;
+    }
+
+    .dropdown-item.danger {
+      color: var(--pink-btn);
+    }
+
+    /* Bottom Transactions Section */
+    .tx-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 16px 14px;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .tx-top-bar {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .tx-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .tx-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .tx-count {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--muted);
+      background: #f1f5f9;
+      padding: 3px 9px;
+      border-radius: 999px;
+    }
+
+    .filter-tabs {
+      display: grid;
+      grid-template-columns: 1fr 1.2fr 1.2fr;
+      gap: 6px;
+      background: #f1f5f9;
+      padding: 4px;
+      border-radius: 12px;
+    }
+
+    .filter-btn {
+      border: none;
+      background: transparent;
+      padding: 8px 6px;
+      border-radius: 9px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .filter-btn.active {
+      background: #ffffff;
+      color: var(--text);
+      box-shadow: 0 1px 4px rgba(15, 23, 42, 0.08);
+    }
+
+    .filter-btn.active.in-tab {
+      color: var(--pink-text);
+    }
+
+    .filter-btn.active.out-tab {
+      color: var(--blue-text);
+    }
+
+    .tx-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 28px 12px;
+      color: var(--muted);
+      font-size: 13.5px;
+      font-style: italic;
+    }
+
+    .tx-item {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      background: #ffffff;
+    }
+
+    .tx-left {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .tx-dot {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      font-weight: 800;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .tx-dot.in {
+      background: var(--pink-bg);
+      color: var(--pink-text);
+    }
+
+    .tx-dot.out {
+      background: var(--blue-bg);
+      color: var(--blue-text);
+    }
+
+    .tx-info {
+      min-width: 0;
+    }
+
+    .tx-desc {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+      word-break: break-word;
+    }
+
+    .tx-meta {
+      font-size: 11.5px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .tx-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 5px;
+      flex-shrink: 0;
+    }
+
+    .tx-nominal {
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .tx-nominal.in {
+      color: var(--pink-text);
+    }
+
+    .tx-nominal.out {
+      color: var(--blue-text);
+    }
+
+    .btn-del-tx {
+      border: none;
+      background: #f8fafc;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .btn-del-tx:hover {
+      background: var(--pink-bg);
+      color: var(--pink-text);
+    }
+
+    /* Modal */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.5);
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 12px;
+      z-index: 60;
+    }
+
+    @media (min-width: 520px) {
+      .modal-backdrop {
+        align-items: center;
+      }
+    }
+
+    .modal-card {
+      width: 100%;
+      max-width: 440px;
+      background: #ffffff;
+      border-radius: 22px;
+      padding: 22px 20px;
+      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.2);
+    }
+
+    .modal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .modal-title {
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    .modal-title.in {
+      color: var(--pink-text);
+    }
+
+    .modal-title.out {
+      color: var(--blue-text);
+    }
+
+    .btn-close-modal {
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      border: none;
+      background: #f1f5f9;
+      color: var(--text);
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .modal-submit {
+      width: 100%;
+      border: none;
+      border-radius: 14px;
+      padding: 14px;
+      font-size: 15px;
+      font-weight: 700;
+      color: #ffffff;
+      cursor: pointer;
+      margin-top: 6px;
+    }
+
+    .modal-submit.in {
+      background: var(--pink-btn);
+    }
+
+    .modal-submit.out {
+      background: var(--blue-btn);
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #0f172a;
+      color: #ffffff;
+      padding: 10px 18px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.25);
+      z-index: 80;
+      white-space: nowrap;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <!-- HALAMAN MASUK (LOGIN) -->
+    <div id="loginView" class="login-wrapper">
+      <div class="login-card">
+        <span class="login-badge">Buku Kas Digital</span>
+        <h1 class="login-title">Masuk ke Akun Kas</h1>
+        <p class="login-sub">Masukkan nama akun serta nomor HP atau email untuk mulai mencatat uang masuk dan uang keluar.</p>
+
+        <form id="loginForm">
+          <div class="form-group">
+            <label class="form-label" for="inputAccountName">Nama Akun</label>
+            <input
+              type="text"
+              id="inputAccountName"
+              class="form-input"
+              placeholder="Contoh: Staf Bendahara MAQ"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="inputContact">Nomor HP / Email</label>
+            <input
+              type="text"
+              id="inputContact"
+              class="form-input"
+              placeholder="Contoh: 08123456789 / nama@email.com"
+              required
+            />
+          </div>
+
+          <button type="submit" class="btn-primary-full">Masuk & Buka Catatan Kas</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- HALAMAN UTAMA (DASHBOARD) -->
+    <div id="dashboardView" class="hidden" style="display: flex; flex-direction: column; gap: 14px;">
+      <!-- Judul Besar Nama Akun -->
+      <header class="header-card">
+        <h1 id="accountHeaderTitle" class="account-big-title">Nama Akun</h1>
+      </header>
+
+      <!-- Kartu Ringkasan Total Uang Masuk & Keluar -->
+      <section class="summary-grid">
+        <div class="summary-box in">
+          <div class="summary-label">TOTAL UANG MASUK</div>
+          <div id="totalInDisplay" class="summary-amount">Rp 0</div>
+        </div>
+        <div class="summary-box out">
+          <div class="summary-label">TOTAL UANG KELUAR</div>
+          <div id="totalOutDisplay" class="summary-amount">Rp 0</div>
+        </div>
+      </section>
+
+      <!-- Tombol Catat Uang Masuk & Catat Uang Keluar -->
+      <section class="action-grid">
+        <button type="button" class="action-btn in" onclick="openTxModal('in')">
+          <span>+</span> Catat Uang Masuk
+        </button>
+        <button type="button" class="action-btn out" onclick="openTxModal('out')">
+          <span>−</span> Catat Uang Keluar
+        </button>
+      </section>
+
+      <!-- Kartu Sinkronkan & Menu Akun -->
+      <section class="sync-card">
+        <div class="balance-pill">
+          <span>Sisa Saldo Kas</span>
+          <span id="balanceDisplay">Rp 0</span>
+        </div>
+
+        <div class="sync-controls">
+          <button type="button" class="btn-sync" onclick="syncData()">
+            <span>↻</span> Sinkronkan
+          </button>
+          <button type="button" id="menuToggleBtn" class="btn-menu-dark" aria-label="Menu">
+            ≡
+          </button>
+        </div>
+
+        <!-- Dropdown Menu -->
+        <div id="accountDropdown" class="dropdown-menu hidden">
+          <div class="dropdown-header">
+            <p id="dropdownName">Nama Akun</p>
+            <p id="dropdownContact">Nomor HP / Email</p>
+          </div>
+          <button type="button" class="dropdown-item" onclick="exportCSV()">
+            📄 Ekspor Excel (CSV)
+          </button>
+          <button type="button" class="dropdown-item" onclick="exportJSON()">
+            💾 Cadangkan Data (JSON)
+          </button>
+          <button type="button" class="dropdown-item" onclick="triggerImportJSON()">
+            📂 Pulihkan Data (JSON)
+          </button>
+          <button type="button" class="dropdown-item danger" onclick="clearAllTransactions()">
+            🗑️ Hapus Semua Transaksi
+          </button>
+          <button type="button" class="dropdown-item danger" onclick="logoutAccount()">
+            🚪 Keluar / Ganti Akun
+          </button>
+        </div>
+      </section>
+
+      <!-- Bagian Bawah: Semua Transaksi & Tombol Filter -->
+      <section class="tx-card">
+        <div class="tx-top-bar">
+          <div class="tx-title-row">
+            <h2 class="tx-title">Riwayat Transaksi</h2>
+            <span id="txCountBadge" class="tx-count">0 transaksi</span>
+          </div>
+
+          <div class="filter-tabs">
+            <button type="button" id="tabAll" class="filter-btn active" onclick="setFilter('all')">
+              Semua
+            </button>
+            <button type="button" id="tabIn" class="filter-btn in-tab" onclick="setFilter('in')">
+              Transaksi Masuk
+            </button>
+            <button type="button" id="tabOut" class="filter-btn out-tab" onclick="setFilter('out')">
+              Transaksi Keluar
+            </button>
+          </div>
+        </div>
+
+        <div id="txListContainer" class="tx-list">
+          <div class="empty-state">Belum ada transaksi tercatat.</div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- MODAL TAMBAH TRANSAKSI -->
+  <div id="txModal" class="modal-backdrop hidden">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3 id="modalTitle" class="modal-title in">Catat Uang Masuk</h3>
+        <button type="button" class="btn-close-modal" onclick="closeTxModal()">✕</button>
+      </div>
+
+      <form id="txForm">
+        <input type="hidden" id="txType" value="in" />
+
+        <div class="form-group">
+          <label class="form-label" for="txDesc">Keterangan / Nama</label>
+          <input
+            type="text"
+            id="txDesc"
+            class="form-input"
+            placeholder="Contoh: Transfer Wali Murid / Beli Token PLN"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="txCategory">Kategori (Opsional)</label>
+          <input
+            type="text"
+            id="txCategory"
+            class="form-input"
+            placeholder="Contoh: SPP, ASAS, Operasional"
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="txAmount">Nominal (Rp)</label>
+          <input
+            type="number"
+            id="txAmount"
+            class="form-input"
+            placeholder="Contoh: 1500000"
+            min="1"
+            step="any"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="txDate">Tanggal</label>
+          <input type="date" id="txDate" class="form-input" required />
+        </div>
+
+        <button type="submit" id="modalSubmitBtn" class="modal-submit in">
+          Simpan Transaksi
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <input type="file" id="importJsonInput" accept=".json" class="hidden" />
+  <div id="toast" class="toast hidden"></div>
+
+  <script>
+    const ACCOUNT_KEY = "kas_app_active_account_v1";
+    let currentAccount = null;
+    let transactions = [];
+    let activeFilter = "all";
+
+    function formatRupiah(num) {
+      const value = Number(num) || 0;
+      const prefix = value < 0 ? "-Rp " : "Rp ";
+      return prefix + Math.abs(value).toLocaleString("id-ID");
+    }
+
+    function getTxStorageKey(account) {
+      const safeId = (account.name + "_" + account.contact)
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g, "_");
+      return "kas_app_tx_" + safeId;
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById("toast");
+      toast.textContent = msg;
+      toast.classList.remove("hidden");
+      clearTimeout(window._toastTimer);
+      window._toastTimer = setTimeout(() => {
+        toast.classList.add("hidden");
+      }, 2400);
+    }
+
+    function loadApp() {
+      const savedAccount = localStorage.getItem(ACCOUNT_KEY);
+      if (savedAccount) {
+        try {
+          currentAccount = JSON.parse(savedAccount);
+          if (currentAccount && currentAccount.name && currentAccount.contact) {
+            enterDashboard();
+            return;
+          }
+        } catch (e) {
+          localStorage.removeItem(ACCOUNT_KEY);
+        }
+      }
+      document.getElementById("loginView").classList.remove("hidden");
+      document.getElementById("dashboardView").classList.add("hidden");
+    }
+
+    function enterDashboard() {
+      document.getElementById("loginView").classList.add("hidden");
+      document.getElementById("dashboardView").classList.remove("hidden");
+
+      document.getElementById("accountHeaderTitle").textContent = currentAccount.name;
+      document.getElementById("dropdownName").textContent = currentAccount.name;
+      document.getElementById("dropdownContact").textContent = currentAccount.contact;
+
+      const rawTx = localStorage.getItem(getTxStorageKey(currentAccount));
+      transactions = rawTx ? JSON.parse(rawTx) : [];
+      renderDashboard();
+    }
+
+    function saveTransactions() {
+      if (!currentAccount) return;
+      localStorage.setItem(getTxStorageKey(currentAccount), JSON.stringify(transactions));
+    }
+
+    function renderDashboard() {
+      let totalIn = 0;
+      let totalOut = 0;
+
+      transactions.forEach((tx) => {
+        if (tx.type === "in") totalIn += Number(tx.amount) || 0;
+        if (tx.type === "out") totalOut += Number(tx.amount) || 0;
+      });
+
+      const balance = totalIn - totalOut;
+      document.getElementById("totalInDisplay").textContent = formatRupiah(totalIn);
+      document.getElementById("totalOutDisplay").textContent = formatRupiah(totalOut);
+      document.getElementById("balanceDisplay").textContent = formatRupiah(balance);
+
+      renderTransactionList();
+    }
+
+    function renderTransactionList() {
+      const container = document.getElementById("txListContainer");
+      const badge = document.getElementById("txCountBadge");
+
+      const filtered = transactions.filter((tx) => {
+        if (activeFilter === "in") return tx.type === "in";
+        if (activeFilter === "out") return tx.type === "out";
+        return true;
+      });
+
+      badge.textContent = filtered.length + " transaksi";
+
+      if (filtered.length === 0) {
+        const emptyText =
+          activeFilter === "in"
+            ? "Belum ada transaksi masuk tercatat."
+            : activeFilter === "out"
+            ? "Belum ada transaksi keluar tercatat."
+            : "Belum ada transaksi tercatat.";
+        container.innerHTML = `<div class="empty-state">${emptyText}</div>`;
+        return;
+      }
+
+      container.innerHTML = filtered
+        .map((tx) => {
+          const isIn = tx.type === "in";
+          const sign = isIn ? "+" : "−";
+          const catText = tx.category ? ` • ${escapeHtml(tx.category)}` : "";
+          return `
+            <div class="tx-item">
+              <div class="tx-left">
+                <div class="tx-dot ${isIn ? "in" : "out"}">${sign}</div>
+                <div class="tx-info">
+                  <div class="tx-desc">${escapeHtml(tx.desc)}</div>
+                  <div class="tx-meta">${formatDateIndo(tx.date)}${catText}</div>
+                </div>
+              </div>
+              <div class="tx-right">
+                <div class="tx-nominal ${isIn ? "in" : "out"}">${sign} ${formatRupiah(tx.amount)}</div>
+                <button type="button" class="btn-del-tx" onclick="deleteTransaction('${tx.id}')">Hapus</button>
+              </div>
+            </div>
+          `;
+        })
+        .join("");
+    }
+
+    function escapeHtml(str) {
+      return String(str || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function formatDateIndo(dateStr) {
+      if (!dateStr) return "-";
+      const parts = dateStr.split("-");
+      if (parts.length !== 3) return dateStr;
+      return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    }
+
+    function setFilter(filter) {
+      activeFilter = filter;
+      document.getElementById("tabAll").classList.toggle("active", filter === "all");
+      document.getElementById("tabIn").classList.toggle("active", filter === "in");
+      document.getElementById("tabOut").classList.toggle("active", filter === "out");
+      renderTransactionList();
+    }
+
+    function openTxModal(type) {
+      const modal = document.getElementById("txModal");
+      const title = document.getElementById("modalTitle");
+      const submitBtn = document.getElementById("modalSubmitBtn");
+
+      document.getElementById("txType").value = type;
+      document.getElementById("txDesc").value = "";
+      document.getElementById("txCategory").value = "";
+      document.getElementById("txAmount").value = "";
+      document.getElementById("txDate").value = new Date().toISOString().split("T")[0];
+
+      if (type === "in") {
+        title.textContent = "Catat Uang Masuk";
+        title.className = "modal-title in";
+        submitBtn.textContent = "Simpan Uang Masuk";
+        submitBtn.className = "modal-submit in";
+      } else {
+        title.textContent = "Catat Uang Keluar";
+        title.className = "modal-title out";
+        submitBtn.textContent = "Simpan Uang Keluar";
+        submitBtn.className = "modal-submit out";
+      }
+
+      modal.classList.remove("hidden");
+      setTimeout(() => document.getElementById("txDesc").focus(), 50);
+    }
+
+    function closeTxModal() {
+      document.getElementById("txModal").classList.add("hidden");
+    }
+
+    function deleteTransaction(id) {
+      if (!confirm("Hapus transaksi ini?")) return;
+      transactions = transactions.filter((t) => t.id !== id);
+      saveTransactions();
+      renderDashboard();
+      showToast("Transaksi dihapus");
+    }
+
+    function syncData() {
+      saveTransactions();
+      renderDashboard();
+      showToast("Data berhasil disinkronkan");
+    }
+
+    function clearAllTransactions() {
+      document.getElementById("accountDropdown").classList.add("hidden");
+      if (!confirm("Hapus semua catatan transaksi pada akun ini?")) return;
+      transactions = [];
+      saveTransactions();
+      renderDashboard();
+      showToast("Semua transaksi dibersihkan");
+    }
+
+    function logoutAccount() {
+      document.getElementById("accountDropdown").classList.add("hidden");
+      localStorage.removeItem(ACCOUNT_KEY);
+      currentAccount = null;
+      transactions = [];
+      document.getElementById("inputAccountName").value = "";
+      document.getElementById("inputContact").value = "";
+      document.getElementById("dashboardView").classList.add("hidden");
+      document.getElementById("loginView").classList.remove("hidden");
+    }
+
+    function exportCSV() {
+      document.getElementById("accountDropdown").classList.add("hidden");
+      if (transactions.length === 0) {
+        showToast("Belum ada data untuk diekspor");
+        return;
+      }
+      const headers = ["Tanggal", "Jenis", "Keterangan", "Kategori", "Nominal"];
+      const rows = transactions.map((t) => [
+        t.date,
+        t.type === "in" ? "Uang Masuk" : "Uang Keluar",
+        `"${String(t.desc).replace(/"/g, '""')}"`,
+        `"${String(t.category || "").replace(/"/g, '""')}"`,
+        t.amount
+      ]);
+      const csvContent =
+        "data:text/csv;charset=utf-8," +
+        [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+      const link = document.createElement("a");
+      link.setAttribute("href", encodeURI(csvContent));
+      link.setAttribute("download", `kas_${currentAccount.name.replace(/\s+/g, "_")}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showToast("File CSV diunduh");
+    }
+
+    function exportJSON() {
+      document.getElementById("accountDropdown").classList.add("hidden");
+      const payload = {
+        account: currentAccount,
+        exportedAt: new Date().toISOString(),
+        transactions
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `backup_kas_${currentAccount.name.replace(/\s+/g, "_")}.json`;
+      link.click();
+      URL.revokeObjectURL(url);
+      showToast("Cadangan JSON diunduh");
+    }
+
+    function triggerImportJSON() {
+      document.getElementById("accountDropdown").classList.add("hidden");
+      document.getElementById("importJsonInput").click();
+    }
+
+    document.getElementById("importJsonInput").addEventListener("change", function (e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function (evt) {
+        try {
+          const parsed = JSON.parse(evt.target.result);
+          if (Array.isArray(parsed.transactions)) {
+            transactions = parsed.transactions;
+            saveTransactions();
+            renderDashboard();
+            showToast("Data berhasil dipulihkan");
+          } else {
+            showToast("Format file JSON tidak valid");
+          }
+        } catch (err) {
+          showToast("Gagal membaca file JSON");
+        }
+      };
+      reader.readAsText(file);
+      e.target.value = "";
+    });
+
+    document.getElementById("loginForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+      const name = document.getElementById("inputAccountName").value.trim();
+      const contact = document.getElementById("inputContact").value.trim();
+      if (!name || !contact) return;
+
+      currentAccount = { name, contact };
+      localStorage.setItem(ACCOUNT_KEY, JSON.stringify(currentAccount));
+      enterDashboard();
+    });
+
+    document.getElementById("txForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+      const type = document.getElementById("txType").value;
+      const desc = document.getElementById("txDesc").value.trim();
+      const category = document.getElementById("txCategory").value.trim();
+      const amount = Number(document.getElementById("txAmount").value);
+      const date = document.getElementById("txDate").value;
+
+      if (!desc || !amount || amount <= 0 || !date) return;
+
+      transactions.unshift({
+        id: "tx_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6),
+        type,
+        desc,
+        category,
+        amount,
+        date
+      });
+
+      saveTransactions();
+      renderDashboard();
+      closeTxModal();
+      showToast(type === "in" ? "Uang masuk dicatat" : "Uang keluar dicatat");
+    });
+
+    document.getElementById("menuToggleBtn").addEventListener("click", function (e) {
+      e.stopPropagation();
+      document.getElementById("accountDropdown").classList.toggle("hidden");
+    });
+
+    document.addEventListener("click", function (e) {
+      const dropdown = document.getElementById("accountDropdown");
+      const btn = document.getElementById("menuToggleBtn");
+      if (!dropdown.contains(e.target) && e.target !== btn) {
+        dropdown.classList.add("hidden");
+      }
+    });
+
+    document.getElementById("txModal").addEventListener("click", function (e) {
+      if (e.target === this) closeTxModal();
+    });
+
+    loadApp();
+  </script>
+</body>
+</html>
