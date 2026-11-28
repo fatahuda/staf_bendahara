@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Aplikasi Pencatatan Kas & Keuangan</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
       --bg: #f1f5f9;
@@ -19,6 +20,8 @@
       --blue-border: #bfdbfe;
       --blue-text: #1d4ed8;
       --blue-btn: #2563eb;
+      --green-bg: #ecfdf5;
+      --green-text: #047857;
       --dark-btn: #0f172a;
       --shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
     }
@@ -53,24 +56,31 @@
       display: none !important;
     }
 
-    /* Login View */
-    .login-wrapper {
+    /* Auth View */
+    .auth-wrapper {
       min-height: calc(100vh - 50px);
       display: flex;
       align-items: center;
       justify-content: center;
     }
 
-    .login-card {
+    .auth-card {
       width: 100%;
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: 22px;
-      padding: 28px 22px;
+      padding: 24px 20px;
       box-shadow: 0 10px 25px rgba(15, 23, 42, 0.07);
     }
 
-    .login-badge {
+    .auth-top-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .auth-badge {
       display: inline-block;
       background: var(--blue-bg);
       color: var(--blue-text);
@@ -78,24 +88,62 @@
       font-weight: 700;
       padding: 5px 12px;
       border-radius: 999px;
-      margin-bottom: 12px;
     }
 
-    .login-title {
-      font-size: 24px;
+    .btn-gear-url {
+      border: 1px solid var(--border);
+      background: #f8fafc;
+      color: var(--text);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 6px 10px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    .auth-tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      background: #f1f5f9;
+      padding: 4px;
+      border-radius: 14px;
+      margin-bottom: 18px;
+    }
+
+    .auth-tab-btn {
+      border: none;
+      background: transparent;
+      padding: 10px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .auth-tab-btn.active {
+      background: #ffffff;
+      color: var(--text);
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
+    }
+
+    .auth-title {
+      font-size: 22px;
       font-weight: 800;
       color: var(--text);
-      margin-bottom: 6px;
+      margin-bottom: 4px;
     }
 
-    .login-sub {
-      font-size: 13.5px;
+    .auth-sub {
+      font-size: 13px;
       color: var(--muted);
-      margin-bottom: 22px;
+      margin-bottom: 18px;
     }
 
     .form-group {
-      margin-bottom: 16px;
+      margin-bottom: 14px;
     }
 
     .form-label {
@@ -108,10 +156,10 @@
 
     .form-input {
       width: 100%;
-      padding: 13px 14px;
+      padding: 12px 14px;
       border: 1.5px solid var(--border);
       border-radius: 13px;
-      font-size: 15px;
+      font-size: 14.5px;
       color: var(--text);
       background: #f8fafc;
       outline: none;
@@ -137,8 +185,38 @@
       transition: opacity 0.15s, transform 0.1s;
     }
 
+    .btn-primary-full.blue {
+      background: var(--blue-btn);
+    }
+
+    .btn-primary-full:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+    }
+
     .btn-primary-full:active {
       transform: scale(0.99);
+    }
+
+    .sync-status-pill {
+      margin-top: 14px;
+      padding: 9px 12px;
+      border-radius: 11px;
+      font-size: 12px;
+      font-weight: 600;
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .sync-status-pill.connected {
+      background: var(--green-bg);
+      border-color: #a7f3d0;
+      color: var(--green-text);
     }
 
     /* Top Title Card */
@@ -308,8 +386,8 @@
       gap: 6px;
     }
 
-    .btn-sync:active {
-      opacity: 0.9;
+    .btn-sync:disabled {
+      opacity: 0.7;
     }
 
     .btn-menu-dark {
@@ -332,7 +410,7 @@
       position: absolute;
       right: 14px;
       top: 60px;
-      width: 225px;
+      width: 245px;
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: 16px;
@@ -591,13 +669,15 @@
       border-radius: 22px;
       padding: 22px 20px;
       box-shadow: 0 20px 40px rgba(15, 23, 42, 0.2);
+      max-height: 90vh;
+      overflow-y: auto;
     }
 
     .modal-head {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
     }
 
     .modal-title {
@@ -645,6 +725,17 @@
       background: var(--blue-btn);
     }
 
+    .help-box {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 12px;
+      line-height: 1.5;
+    }
+
     /* Toast */
     .toast {
       position: fixed;
@@ -659,44 +750,109 @@
       font-weight: 600;
       box-shadow: 0 8px 20px rgba(15, 23, 42, 0.25);
       z-index: 80;
-      white-space: nowrap;
+      max-width: 92vw;
+      text-align: center;
     }
   </style>
 </head>
 <body>
   <div class="app-shell">
-    <!-- HALAMAN MASUK (LOGIN) -->
-    <div id="loginView" class="login-wrapper">
-      <div class="login-card">
-        <span class="login-badge">Buku Kas Digital</span>
-        <h1 class="login-title">Masuk ke Akun Kas</h1>
-        <p class="login-sub">Masukkan nama akun serta nomor HP atau email untuk mulai mencatat uang masuk dan uang keluar.</p>
+    <!-- HALAMAN AUTH (MASUK & DAFTAR) -->
+    <div id="authView" class="auth-wrapper">
+      <div class="auth-card">
+        <div class="auth-top-row">
+          <span class="auth-badge">Buku Kas Cloud</span>
+          <button type="button" class="btn-gear-url" onclick="openCloudConfigModal()">
+            ⚙️ Koneksi Cloud
+          </button>
+        </div>
 
+        <!-- Switch Tombol Masuk & Daftar -->
+        <div class="auth-tabs">
+          <button type="button" id="authTabLogin" class="auth-tab-btn active" onclick="switchAuthTab('login')">
+            Masuk
+          </button>
+          <button type="button" id="authTabRegister" class="auth-tab-btn" onclick="switchAuthTab('register')">
+            Daftar
+          </button>
+        </div>
+
+        <!-- FORM MASUK -->
         <form id="loginForm">
+          <h1 class="auth-title">Masuk Buku Kas</h1>
+          <p class="auth-sub">Masukkan nama akun atau email aktif beserta kata sandi yang sudah terdaftar.</p>
+
           <div class="form-group">
-            <label class="form-label" for="inputAccountName">Nama Akun</label>
+            <label class="form-label" for="loginIdentifier">Nama Akun atau Email Aktif</label>
             <input
               type="text"
-              id="inputAccountName"
+              id="loginIdentifier"
               class="form-input"
-              placeholder="Contoh: Staf Bendahara MAQ"
+              placeholder="Contoh: Kas MA Qodiriyah / email@gmail.com"
               required
             />
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="inputContact">Nomor HP / Email</label>
+            <label class="form-label" for="loginPassword">Kata Sandi</label>
             <input
-              type="text"
-              id="inputContact"
+              type="password"
+              id="loginPassword"
               class="form-input"
-              placeholder="Contoh: 08123456789 / nama@email.com"
+              placeholder="Masukkan kata sandi"
               required
             />
           </div>
 
-          <button type="submit" class="btn-primary-full">Masuk & Buka Catatan Kas</button>
+          <button type="submit" id="btnLoginSubmit" class="btn-primary-full">Masuk</button>
         </form>
+
+        <!-- FORM DAFTAR -->
+        <form id="registerForm" class="hidden">
+          <h1 class="auth-title">Daftar Akun Baru</h1>
+          <p class="auth-sub">Nama akun akan tampil sebagai judul besar di buku kas Anda.</p>
+
+          <div class="form-group">
+            <label class="form-label" for="regAccountName">Nama Akun (Judul Buku Kas)</label>
+            <input
+              type="text"
+              id="regAccountName"
+              class="form-input"
+              placeholder="Contoh: Kas MA Qodiriyah"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="regEmail">Email Aktif</label>
+            <input
+              type="email"
+              id="regEmail"
+              class="form-input"
+              placeholder="Contoh: bendahara@gmail.com"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="regPassword">Buat Kata Sandi</label>
+            <input
+              type="password"
+              id="regPassword"
+              class="form-input"
+              placeholder="Minimal 6 karakter"
+              minlength="6"
+              required
+            />
+          </div>
+
+          <button type="submit" id="btnRegisterSubmit" class="btn-primary-full blue">Daftar & Buka Buku Kas</button>
+        </form>
+
+        <div id="authSyncIndicator" class="sync-status-pill">
+          <span>Penyimpanan: Lokal Browser</span>
+          <span style="font-weight:800;">● Offline</span>
+        </div>
       </div>
     </div>
 
@@ -737,7 +893,7 @@
         </div>
 
         <div class="sync-controls">
-          <button type="button" class="btn-sync" onclick="syncData()">
+          <button type="button" id="btnSyncNow" class="btn-sync" onclick="syncWithCloud(true)">
             <span>↻</span> Sinkronkan
           </button>
           <button type="button" id="menuToggleBtn" class="btn-menu-dark" aria-label="Menu">
@@ -749,22 +905,22 @@
         <div id="accountDropdown" class="dropdown-menu hidden">
           <div class="dropdown-header">
             <p id="dropdownName">Nama Akun</p>
-            <p id="dropdownContact">Nomor HP / Email</p>
+            <p id="dropdownEmail">email@domain.com</p>
           </div>
+          <button type="button" class="dropdown-item" onclick="openCloudConfigModal()">
+            ⚙️ Pengaturan Cloud Supabase
+          </button>
           <button type="button" class="dropdown-item" onclick="exportCSV()">
             📄 Ekspor Excel (CSV)
           </button>
           <button type="button" class="dropdown-item" onclick="exportJSON()">
             💾 Cadangkan Data (JSON)
           </button>
-          <button type="button" class="dropdown-item" onclick="triggerImportJSON()">
-            📂 Pulihkan Data (JSON)
-          </button>
           <button type="button" class="dropdown-item danger" onclick="clearAllTransactions()">
             🗑️ Hapus Semua Transaksi
           </button>
           <button type="button" class="dropdown-item danger" onclick="logoutAccount()">
-            🚪 Keluar / Ganti Akun
+            🚪 Keluar Akun
           </button>
         </div>
       </section>
@@ -854,14 +1010,90 @@
     </div>
   </div>
 
-  <input type="file" id="importJsonInput" accept=".json" class="hidden" />
+  <!-- MODAL PENGATURAN SUPABASE -->
+  <div id="cloudConfigModal" class="modal-backdrop hidden">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3 class="modal-title" style="color:var(--text);">Koneksi Cloud Supabase</h3>
+        <button type="button" class="btn-close-modal" onclick="closeCloudConfigModal()">✕</button>
+      </div>
+
+      <div class="help-box">
+        Masukkan <b>Project URL</b> dan <b>Anon Public Key</b> dari proyek gratis Supabase Anda. Setelah terisi, setiap pendaftar baru dan seluruh transaksinya tersimpan otomatis secara multi-pengguna di cloud.
+      </div>
+
+      <form id="cloudConfigForm">
+        <div class="form-group">
+          <label class="form-label" for="sbUrlInput">Supabase Project URL</label>
+          <input
+            type="url"
+            id="sbUrlInput"
+            class="form-input"
+            placeholder="https://xxxxxxxxxxxx.supabase.co"
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="sbAnonInput">Supabase Anon Public Key</label>
+          <input
+            type="text"
+            id="sbAnonInput"
+            class="form-input"
+            placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+          />
+        </div>
+
+        <button type="submit" class="btn-primary-full blue">Simpan Konfigurasi Cloud</button>
+      </form>
+    </div>
+  </div>
+
   <div id="toast" class="toast hidden"></div>
 
   <script>
-    const ACCOUNT_KEY = "kas_app_active_account_v1";
+    // ============================================================
+    // KONFIGURASI DEFAULT SUPABASE (OPSIONAL: ISI LANGSUNG DI SINI
+    // AGAR PENGGUNA PUBLIK TIDAK PERLU MENGISI MANUAL)
+    // ============================================================
+    const DEFAULT_SUPABASE_URL = "[https://jpsudygmzzcrcrarfva.supabase.co](https://jpsudygmzzcrcrarfva.supabase.co)";
+    const DEFAULT_SUPABASE_ANON_KEY = "sb_publishable_MGhYjUgdl18QM4amiF_kpQ_rII4cU-U";
+
+    const SB_URL_STORAGE = "kas_sb_project_url_v1";
+    const SB_KEY_STORAGE = "kas_sb_anon_key_v1";
+    const SESSION_KEY = "kas_app_session_v3";
+    const LOCAL_USERS_KEY = "kas_app_local_users_v3";
+
+    let supabaseClient = null;
     let currentAccount = null;
     let transactions = [];
     let activeFilter = "all";
+
+    function getSupabaseCreds() {
+      const url = (localStorage.getItem(SB_URL_STORAGE) || DEFAULT_SUPABASE_URL).trim();
+      const key = (localStorage.getItem(SB_KEY_STORAGE) || DEFAULT_SUPABASE_ANON_KEY).trim();
+      return { url, key };
+    }
+
+    function initSupabase() {
+      const { url, key } = getSupabaseCreds();
+      if (url && key && window.supabase) {
+        supabaseClient = window.supabase.createClient(url, key);
+      } else {
+        supabaseClient = null;
+      }
+      updateAuthSyncBadge();
+    }
+
+    function updateAuthSyncBadge() {
+      const indicator = document.getElementById("authSyncIndicator");
+      if (supabaseClient) {
+        indicator.classList.add("connected");
+        indicator.innerHTML = <span>Database Cloud Supabase</span><span style="font-weight:800;">● Aktif</span>;
+      } else {
+        indicator.classList.remove("connected");
+        indicator.innerHTML = <span>Penyimpanan Lokal (Belum Cloud)</span><span style="font-weight:800;">● Lokal</span>;
+      }
+    }
 
     function formatRupiah(num) {
       const value = Number(num) || 0;
@@ -870,10 +1102,10 @@
     }
 
     function getTxStorageKey(account) {
-      const safeId = (account.name + "_" + account.contact)
+      const safeId = (account.id || account.email || account.accountName)
         .toLowerCase()
         .replace(/[^a-z0-9]/g, "_");
-      return "kas_app_tx_" + safeId;
+      return "kas_app_tx_v3_" + safeId;
     }
 
     function showToast(msg) {
@@ -883,42 +1115,324 @@
       clearTimeout(window._toastTimer);
       window._toastTimer = setTimeout(() => {
         toast.classList.add("hidden");
-      }, 2400);
+      }, 2800);
     }
 
-    function loadApp() {
-      const savedAccount = localStorage.getItem(ACCOUNT_KEY);
-      if (savedAccount) {
+    function switchAuthTab(tab) {
+      const isLogin = tab === "login";
+      document.getElementById("authTabLogin").classList.toggle("active", isLogin);
+      document.getElementById("authTabRegister").classList.toggle("active", !isLogin);
+      document.getElementById("loginForm").classList.toggle("hidden", !isLogin);
+      document.getElementById("registerForm").classList.toggle("hidden", isLogin);
+    }
+
+    function getLocalUsers() {
+      try {
+        return JSON.parse(localStorage.getItem(LOCAL_USERS_KEY) || "[]");
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function saveLocalUsers(users) {
+      localStorage.setItem(LOCAL_USERS_KEY, JSON.stringify(users));
+    }
+
+    // DAFTAR AKUN BARU
+    document.getElementById("registerForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const accountName = document.getElementById("regAccountName").value.trim();
+      const email = document.getElementById("regEmail").value.trim().toLowerCase();
+      const password = document.getElementById("regPassword").value;
+
+      if (!accountName || !email || !password) return;
+
+      const btn = document.getElementById("btnRegisterSubmit");
+      btn.disabled = true;
+      btn.textContent = "Mendaftarkan Akun...";
+
+      try {
+        if (supabaseClient) {
+          // 1. Cek apakah nama akun sudah dipakai
+          const { data: existingAcc } = await supabaseClient
+            .from("accounts")
+            .select("id")
+            .ilike("account_name", accountName)
+            .maybeSingle();
+
+          if (existingAcc) {
+            showToast("Nama akun sudah digunakan, pilih nama lain.");
+            btn.disabled = false;
+            btn.textContent = "Daftar & Buka Buku Kas";
+            return;
+          }
+
+          // 2. Daftarkan user di Supabase Auth
+          const { data: authData, error: authError } = await supabaseClient.auth.signUp({
+            email,
+            password,
+            options: {
+              data: { account_name: accountName }
+            }
+          });
+
+          if (authError) {
+            throw new Error(authError.message);
+          }
+
+          const userId = authData.user ? authData.user.id : null;
+          if (!userId) {
+            throw new Error("Gagal membuat ID akun.");
+          }
+
+          // 3. Simpan profil ke tabel accounts
+          const { error: profileError } = await supabaseClient.from("accounts").insert({
+            id: userId,
+            account_name: accountName,
+            email: email
+          });
+
+          if (profileError) {
+            throw new Error(profileError.message);
+          }
+
+          currentAccount = {
+            id: userId,
+            accountName,
+            email,
+            mode: "cloud"
+          };
+          localStorage.setItem(SESSION_KEY, JSON.stringify(currentAccount));
+          transactions = [];
+          saveTransactionsLocal();
+
+          if (!authData.session) {
+            showToast("Akun terdaftar! Cek email konfirmasi atau langsung Masuk.");
+            switchAuthTab("login");
+          } else {
+            showToast("Pendaftaran berhasil! Selamat datang.");
+            enterDashboard();
+          }
+        } else {
+          // Mode Lokal Browser
+          const users = getLocalUsers();
+          const duplicate = users.some(
+            (u) =>
+              u.email.toLowerCase() === email ||
+              u.accountName.toLowerCase() === accountName.toLowerCase()
+          );
+          if (duplicate) {
+            showToast("Nama akun atau email sudah terdaftar!");
+            btn.disabled = false;
+            btn.textContent = "Daftar & Buka Buku Kas";
+            return;
+          }
+
+          const newLocalUser = {
+            id: "local_" + Date.now(),
+            accountName,
+            email,
+            password,
+            mode: "local"
+          };
+          users.push(newLocalUser);
+          saveLocalUsers(users);
+
+          currentAccount = {
+            id: newLocalUser.id,
+            accountName,
+            email,
+            mode: "local"
+          };
+          localStorage.setItem(SESSION_KEY, JSON.stringify(currentAccount));
+          transactions = [];
+          saveTransactionsLocal();
+          showToast("Akun terdaftar di penyimpanan lokal!");
+          enterDashboard();
+        }
+      } catch (err) {
+        showToast("Gagal daftar: " + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Daftar & Buka Buku Kas";
+      }
+    });
+
+    // MASUK AKUN
+    document.getElementById("loginForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const identifier = document.getElementById("loginIdentifier").value.trim().toLowerCase();
+      const password = document.getElementById("loginPassword").value;
+
+      if (!identifier || !password) return;
+
+      const btn = document.getElementById("btnLoginSubmit");
+      btn.disabled = true;
+      btn.textContent = "Memeriksa Akun...";
+
+      try {
+        if (supabaseClient) {
+          let targetEmail = identifier;
+
+          // Jika user mengetik Nama Akun (bukan email), cari emailnya di tabel accounts
+          if (!identifier.includes("@")) {
+            const { data: accRow, error: lookupErr } = await supabaseClient
+              .from("accounts")
+              .select("id, account_name, email")
+              .ilike("account_name", identifier)
+              .maybeSingle();
+
+            if (lookupErr || !accRow) {
+              throw new Error("Nama akun tidak ditemukan!");
+            }
+            targetEmail = accRow.email;
+          }
+
+          const { data: signInData, error: signInErr } =
+            await supabaseClient.auth.signInWithPassword({
+              email: targetEmail,
+              password
+            });
+
+          if (signInErr || !signInData.user) {
+            throw new Error("Nama akun/email atau kata sandi salah!");
+          }
+
+          // Ambil nama akun dari tabel accounts
+          const { data: profile } = await supabaseClient
+            .from("accounts")
+            .select("account_name, email")
+            .eq("id", signInData.user.id)
+            .maybeSingle();
+
+          const resolvedName =
+            (profile && profile.account_name) ||
+            (signInData.user.user_metadata && signInData.user.user_metadata.account_name) ||
+            targetEmail.split("@")[0];
+
+          currentAccount = {
+            id: signInData.user.id,
+            accountName: resolvedName,
+            email: targetEmail,
+            mode: "cloud"
+          };
+          localStorage.setItem(SESSION_KEY, JSON.stringify(currentAccount));
+          showToast("Berhasil masuk!");
+          enterDashboard();
+        } else {
+          // Mode Lokal Browser
+          const users = getLocalUsers();
+          const matched = users.find(
+            (u) =>
+              (u.email.toLowerCase() === identifier ||
+                u.accountName.toLowerCase() === identifier) &&
+              u.password === password
+          );
+          if (!matched) {
+            throw new Error("Nama akun/email atau kata sandi tidak sesuai!");
+          }
+
+          currentAccount = {
+            id: matched.id,
+            accountName: matched.accountName,
+            email: matched.email,
+            mode: "local"
+          };
+          localStorage.setItem(SESSION_KEY, JSON.stringify(currentAccount));
+          showToast("Berhasil masuk!");
+          enterDashboard();
+        }
+      } catch (err) {
+        showToast(err.message || "Gagal masuk");
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Masuk";
+      }
+    });
+
+    async function loadApp() {
+      initSupabase();
+      const savedSession = localStorage.getItem(SESSION_KEY);
+      if (savedSession) {
         try {
-          currentAccount = JSON.parse(savedAccount);
-          if (currentAccount && currentAccount.name && currentAccount.contact) {
+          currentAccount = JSON.parse(savedSession);
+          if (currentAccount && currentAccount.accountName && currentAccount.email) {
             enterDashboard();
             return;
           }
         } catch (e) {
-          localStorage.removeItem(ACCOUNT_KEY);
+          localStorage.removeItem(SESSION_KEY);
         }
       }
-      document.getElementById("loginView").classList.remove("hidden");
+      document.getElementById("authView").classList.remove("hidden");
       document.getElementById("dashboardView").classList.add("hidden");
     }
 
     function enterDashboard() {
-      document.getElementById("loginView").classList.add("hidden");
+      document.getElementById("authView").classList.add("hidden");
       document.getElementById("dashboardView").classList.remove("hidden");
 
-      document.getElementById("accountHeaderTitle").textContent = currentAccount.name;
-      document.getElementById("dropdownName").textContent = currentAccount.name;
-      document.getElementById("dropdownContact").textContent = currentAccount.contact;
+      document.getElementById("accountHeaderTitle").textContent = currentAccount.accountName;
+      document.getElementById("dropdownName").textContent = currentAccount.accountName;
+      document.getElementById("dropdownEmail").textContent = currentAccount.email;
 
       const rawTx = localStorage.getItem(getTxStorageKey(currentAccount));
       transactions = rawTx ? JSON.parse(rawTx) : [];
       renderDashboard();
+
+      if (supabaseClient && currentAccount.mode === "cloud") {
+        syncWithCloud(false);
+      }
     }
 
-    function saveTransactions() {
+    function saveTransactionsLocal() {
       if (!currentAccount) return;
       localStorage.setItem(getTxStorageKey(currentAccount), JSON.stringify(transactions));
+    }
+
+    async function syncWithCloud(manual = false) {
+      saveTransactionsLocal();
+      renderDashboard();
+
+      if (!supabaseClient || currentAccount.mode !== "cloud") {
+        if (manual) {
+          showToast("Data tersimpan di lokal. Atur Cloud Supabase di menu ≡ untuk sync online.");
+        }
+        return;
+      }
+
+      const syncBtn = document.getElementById("btnSyncNow");
+      syncBtn.disabled = true;
+      syncBtn.innerHTML = <span>↻</span> Menyinkronkan...;
+
+      try {
+        const { data, error } = await supabaseClient
+          .from("transactions")
+          .select("id, type, description, category, amount, tx_date, created_at")
+          .eq("user_id", currentAccount.id)
+          .order("tx_date", { ascending: false })
+          .order("created_at", { ascending: false });
+
+        if (error) throw new Error(error.message);
+
+        transactions = (data || []).map((row) => ({
+          id: row.id,
+          type: row.type,
+          desc: row.description,
+          category: row.category || "",
+          amount: Number(row.amount) || 0,
+          date: row.tx_date
+        }));
+
+        saveTransactionsLocal();
+        renderDashboard();
+        if (manual) showToast("Berhasil sinkron dengan Cloud!");
+      } catch (err) {
+        if (manual) showToast("Gagal sinkron: " + err.message);
+      } finally {
+        syncBtn.disabled = false;
+        syncBtn.innerHTML = <span>↻</span> Sinkronkan;
+      }
     }
 
     function renderDashboard() {
@@ -957,7 +1471,7 @@
             : activeFilter === "out"
             ? "Belum ada transaksi keluar tercatat."
             : "Belum ada transaksi tercatat.";
-        container.innerHTML = `<div class="empty-state">${emptyText}</div>`;
+        container.innerHTML = <div class="empty-state">${emptyText}</div>;
         return;
       }
 
@@ -997,7 +1511,7 @@
       if (!dateStr) return "-";
       const parts = dateStr.split("-");
       if (parts.length !== 3) return dateStr;
-      return `${parts[2]}/${parts[1]}/${parts[0]}`;
+      return ${parts[2]}/${parts[1]}/${parts[0]};
     }
 
     function setFilter(filter) {
@@ -1039,39 +1553,156 @@
       document.getElementById("txModal").classList.add("hidden");
     }
 
-    function deleteTransaction(id) {
+    document.getElementById("txForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const type = document.getElementById("txType").value;
+      const desc = document.getElementById("txDesc").value.trim();
+      const category = document.getElementById("txCategory").value.trim();
+      const amount = Number(document.getElementById("txAmount").value);
+      const date = document.getElementById("txDate").value;
+
+      if (!desc || !amount || amount <= 0 || !date) return;
+
+      closeTxModal();
+
+      if (supabaseClient && currentAccount.mode === "cloud") {
+        try {
+          const { data, error } = await supabaseClient
+            .from("transactions")
+            .insert({
+              user_id: currentAccount.id,
+              type,
+              description: desc,
+              category: category || null,
+              amount,
+              tx_date: date
+            })
+            .select()
+            .single();
+
+          if (error) throw new Error(error.message);
+
+          transactions.unshift({
+            id: data.id,
+            type: data.type,
+            desc: data.description,
+            category: data.category || "",
+            amount: Number(data.amount),
+            date: data.tx_date
+          });
+          saveTransactionsLocal();
+          renderDashboard();
+          showToast(type === "in" ? "Uang masuk tersimpan ke Cloud" : "Uang keluar tersimpan ke Cloud");
+        } catch (err) {
+          showToast("Gagal simpan ke Cloud: " + err.message);
+        }
+      } else {
+        transactions.unshift({
+          id: "tx_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6),
+          type,
+          desc,
+          category,
+          amount,
+          date
+        });
+        saveTransactionsLocal();
+        renderDashboard();
+        showToast(type === "in" ? "Uang masuk dicatat" : "Uang keluar dicatat");
+      }
+    });
+
+    async function deleteTransaction(id) {
       if (!confirm("Hapus transaksi ini?")) return;
+
+      if (supabaseClient && currentAccount.mode === "cloud") {
+        try {
+          const { error } = await supabaseClient
+            .from("transactions")
+            .delete()
+            .eq("id", id)
+            .eq("user_id", currentAccount.id);
+
+          if (error) throw new Error(error.message);
+        } catch (err) {
+          showToast("Gagal menghapus dari Cloud: " + err.message);
+          return;
+        }
+      }
+
       transactions = transactions.filter((t) => t.id !== id);
-      saveTransactions();
+      saveTransactionsLocal();
       renderDashboard();
       showToast("Transaksi dihapus");
     }
 
-    function syncData() {
-      saveTransactions();
-      renderDashboard();
-      showToast("Data berhasil disinkronkan");
-    }
-
-    function clearAllTransactions() {
+    async function clearAllTransactions() {
       document.getElementById("accountDropdown").classList.add("hidden");
       if (!confirm("Hapus semua catatan transaksi pada akun ini?")) return;
+
+      if (supabaseClient && currentAccount.mode === "cloud") {
+        try {
+          const { error } = await supabaseClient
+            .from("transactions")
+            .delete()
+            .eq("user_id", currentAccount.id);
+
+          if (error) throw new Error(error.message);
+        } catch (err) {
+          showToast("Gagal membersihkan data Cloud: " + err.message);
+          return;
+        }
+      }
+
       transactions = [];
-      saveTransactions();
+      saveTransactionsLocal();
       renderDashboard();
       showToast("Semua transaksi dibersihkan");
     }
 
-    function logoutAccount() {
+    async function logoutAccount() {
       document.getElementById("accountDropdown").classList.add("hidden");
-      localStorage.removeItem(ACCOUNT_KEY);
+      if (supabaseClient) {
+        await supabaseClient.auth.signOut().catch(() => {});
+      }
+      localStorage.removeItem(SESSION_KEY);
       currentAccount = null;
       transactions = [];
-      document.getElementById("inputAccountName").value = "";
-      document.getElementById("inputContact").value = "";
+      document.getElementById("loginIdentifier").value = "";
+      document.getElementById("loginPassword").value = "";
       document.getElementById("dashboardView").classList.add("hidden");
-      document.getElementById("loginView").classList.remove("hidden");
+      document.getElementById("authView").classList.remove("hidden");
+      switchAuthTab("login");
     }
+
+    function openCloudConfigModal() {
+      document.getElementById("accountDropdown").classList.add("hidden");
+      const { url, key } = getSupabaseCreds();
+      document.getElementById("sbUrlInput").value = url;
+      document.getElementById("sbAnonInput").value = key;
+      document.getElementById("cloudConfigModal").classList.remove("hidden");
+    }
+
+    function closeCloudConfigModal() {
+      document.getElementById("cloudConfigModal").classList.add("hidden");
+    }
+
+    document.getElementById("cloudConfigForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+      const url = document.getElementById("sbUrlInput").value.trim();
+      const key = document.getElementById("sbAnonInput").value.trim();
+
+      if (url && key) {
+        localStorage.setItem(SB_URL_STORAGE, url);
+        localStorage.setItem(SB_KEY_STORAGE, key);
+        showToast("Konfigurasi Cloud Supabase disimpan!");
+      } else {
+        localStorage.removeItem(SB_URL_STORAGE);
+        localStorage.removeItem(SB_KEY_STORAGE);
+        showToast("Konfigurasi Cloud dihapus (mode lokal)");
+      }
+      initSupabase();
+      closeCloudConfigModal();
+    });
 
     function exportCSV() {
       document.getElementById("accountDropdown").classList.add("hidden");
@@ -1083,8 +1714,8 @@
       const rows = transactions.map((t) => [
         t.date,
         t.type === "in" ? "Uang Masuk" : "Uang Keluar",
-        `"${String(t.desc).replace(/"/g, '""')}"`,
-        `"${String(t.category || "").replace(/"/g, '""')}"`,
+        "${String(t.desc).replace(/"/g, '""')}",
+        "${String(t.category || "").replace(/"/g, '""')}",
         t.amount
       ]);
       const csvContent =
@@ -1092,7 +1723,7 @@
         [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
       const link = document.createElement("a");
       link.setAttribute("href", encodeURI(csvContent));
-      link.setAttribute("download", `kas_${currentAccount.name.replace(/\s+/g, "_")}.csv`);
+      link.setAttribute("download", kas_${currentAccount.accountName.replace(/\s+/g, "_")}.csv);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -1110,75 +1741,11 @@
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `backup_kas_${currentAccount.name.replace(/\s+/g, "_")}.json`;
+      link.download = backup_kas_${currentAccount.accountName.replace(/\s+/g, "_")}.json;
       link.click();
       URL.revokeObjectURL(url);
       showToast("Cadangan JSON diunduh");
     }
-
-    function triggerImportJSON() {
-      document.getElementById("accountDropdown").classList.add("hidden");
-      document.getElementById("importJsonInput").click();
-    }
-
-    document.getElementById("importJsonInput").addEventListener("change", function (e) {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function (evt) {
-        try {
-          const parsed = JSON.parse(evt.target.result);
-          if (Array.isArray(parsed.transactions)) {
-            transactions = parsed.transactions;
-            saveTransactions();
-            renderDashboard();
-            showToast("Data berhasil dipulihkan");
-          } else {
-            showToast("Format file JSON tidak valid");
-          }
-        } catch (err) {
-          showToast("Gagal membaca file JSON");
-        }
-      };
-      reader.readAsText(file);
-      e.target.value = "";
-    });
-
-    document.getElementById("loginForm").addEventListener("submit", function (e) {
-      e.preventDefault();
-      const name = document.getElementById("inputAccountName").value.trim();
-      const contact = document.getElementById("inputContact").value.trim();
-      if (!name || !contact) return;
-
-      currentAccount = { name, contact };
-      localStorage.setItem(ACCOUNT_KEY, JSON.stringify(currentAccount));
-      enterDashboard();
-    });
-
-    document.getElementById("txForm").addEventListener("submit", function (e) {
-      e.preventDefault();
-      const type = document.getElementById("txType").value;
-      const desc = document.getElementById("txDesc").value.trim();
-      const category = document.getElementById("txCategory").value.trim();
-      const amount = Number(document.getElementById("txAmount").value);
-      const date = document.getElementById("txDate").value;
-
-      if (!desc || !amount || amount <= 0 || !date) return;
-
-      transactions.unshift({
-        id: "tx_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6),
-        type,
-        desc,
-        category,
-        amount,
-        date
-      });
-
-      saveTransactions();
-      renderDashboard();
-      closeTxModal();
-      showToast(type === "in" ? "Uang masuk dicatat" : "Uang keluar dicatat");
-    });
 
     document.getElementById("menuToggleBtn").addEventListener("click", function (e) {
       e.stopPropagation();
@@ -1195,6 +1762,10 @@
 
     document.getElementById("txModal").addEventListener("click", function (e) {
       if (e.target === this) closeTxModal();
+    });
+
+    document.getElementById("cloudConfigModal").addEventListener("click", function (e) {
+      if (e.target === this) closeCloudConfigModal();
     });
 
     loadApp();
